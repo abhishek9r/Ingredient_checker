@@ -1,12 +1,13 @@
 import React from "react";
 import logo from "./images/logo.jpg"
+import { Link } from "react-router-dom";
 import Header from "./Header";
 import scan from "./images/grommet-icons_qr.png" 
 import CameraCapture from "./CameraCapture";
 const Body = ()=>{
     const cameraHandler = ()=>{
             <CameraCapture/>
-            console.log("hh")
+            // console.log("hh")
     } 
     return (
         <div>
@@ -22,8 +23,10 @@ const Body = ()=>{
                 doraemon 
             </div>
             <img className="w-90 mx-auto my-10 " src={scan} alt="scan_Icon" />
-            <button className="bg-blue-600 w-30 font-bold rounded-xl h-15 mx-45 my-10 cursor-pointer" onClick={()=>{cameraHandler()}}>Scan</button>
             
+            <Link to="/camera" className="font-bold mx-2 my-1 hover:text-gray-400">
+            <button className="bg-blue-600 w-30 font-bold rounded-xl h-15 mx-45 my-10 cursor-pointer" onClick={()=>{cameraHandler()}}>Scan</button>
+            </Link>
         </div>
     )
 }

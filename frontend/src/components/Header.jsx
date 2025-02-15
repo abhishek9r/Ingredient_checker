@@ -5,7 +5,7 @@ import Login from "./Login";
 import { useAuth0 } from "@auth0/auth0-react";
 import LogoutButton from "./Logout";
 const Header = ()=>{
-// const {isAuthenticated} = useAuth0(); 
+const {isAuthenticated} = useAuth0(); 
 
     return (
         <div>
@@ -13,9 +13,18 @@ const Header = ()=>{
            <img className ="w-8 p-1 border-1" src={logo} alt="logo" />
            <div className="flex justify-around">
            
-           <div className="font-bold mx-2 my-1"><Login/></div>
-           <div className="font-bold mx-2 my-1"><LogoutButton/></div>
-           <div className="font-bold mx-2 my-1">Profile</div>
+           {isAuthenticated ?  <LogoutButton/>  : <div className="font-bold mx-3"><Login/></div>}
+           {/* <div className="font-bold mx-2 my-1">Profile</div> */}
+           {location.pathname === '/profile' ? (
+            <Link to="/" className="font-bold mx-2 my-1 hover:text-gray-400">
+              Home
+            </Link>
+          ) : (
+            <Link to="/profile" className="font-bold mx-2 my-1 hover:text-gray-400">
+              Profile
+            </Link>
+          )}
+
            </div>
             
            </div>
