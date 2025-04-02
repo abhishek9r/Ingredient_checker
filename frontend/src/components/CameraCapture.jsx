@@ -369,26 +369,34 @@ const CameraCapture = () => {
       if (!ingredient.trim()) {
         throw new Error("Please enter an ingredient to search");
       }
-
+  
       const response = await fetch(
-        `https://world.openfoodfacts.org/api/v2/search?fields=product_name,ingredients_text,allergens,nutriscore_grade&json=1&search_terms=${encodeURIComponent(ingredient)}`
+        `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=qvOYkoRjE8qGYXmm4nUuczB7KEwFfHiVR3hpJXDG&query=${encodeURIComponent(ingredient)}&pageSize=5`
       );
       
       if (!response.ok) {
-        throw new Error("Failed to fetch data from Open Food Facts");
+        throw new Error(`API Error: ${response.status}`);
       }
       
       const data = await response.json();
       
-      if (!data.products || data.products.length === 0) {
-        throw new Error("No products found for this ingredient");
+      if (!data.foods || data.foods.length === 0) {
+        throw new Error("No nutritional data found for this ingredient");
       }
-
-      return data.products.map(product => ({
-        name: product.product_name,
-        ingredients: product.ingredients_text,
-        allergens: product.allergens,
-        nutriscore: product.nutriscore_grade
+  
+      // Process USDA-specific response format
+      return data.foods.map(food => ({
+        name: food.description,
+        category: food.foodCategory,
+        nutrients: food.foodNutrients
+          .filter(n => n.value > 0)
+          .map(n => ({
+            name: n.nutrientName,
+            value: n.value,
+            unit: n.unitName
+          })),
+        servingSize: food.servingSize,
+        servingUnit: food.servingSizeUnit
       }));
     } catch (error) {
       console.error("Search Error:", error);
