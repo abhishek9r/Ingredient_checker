@@ -11,7 +11,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/profile" element={<Profile />} />
-        <Route path="/" element={<Body />} />
+        <Route path="/" element={<CameraCapture/>} />
         <Route path="/camera" element={<CameraCapture/>}/>
       </Routes>
     </BrowserRouter>

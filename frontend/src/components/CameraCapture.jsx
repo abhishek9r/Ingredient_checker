@@ -1,272 +1,6 @@
-// import React, { useRef, useState } from "react";
-// import Tesseract from "tesseract.js";
-// import { FiCamera, FiVideo, FiX } from "react-icons/fi";
-
-// const CameraCapture = () => {
-//   // Camera
-//   const videoRef = useRef(null);
-//   const canvasRef = useRef(null);
-//   const [image, setImage] = useState(null);
-//   const [isProcessing, setIsProcessing] = useState(false);
-//   const [scannedText, setScannedText] = useState("");
-//   const [isCameraOn, setIsCameraOn] = useState(false);
-
-//   // for Searching ingredients
-//   const [query, setQuery] = useState('');
-//   const [results, setResults] = useState([]);
-//   const [loading, setLoading] = useState(false);
-
-//   // Start Camera
-//   const startCamera = async () => {
-//     try {
-//       setIsProcessing(true);
-//       const devices = await navigator.mediaDevices.enumerateDevices();
-//       const videoDevices = devices.filter((device) => device.kind === "videoinput");
-
-//       if (videoDevices.length === 0) {
-//         console.error("❌ No cameras found!");
-//         alert("No cameras found. Please connect a camera and reload.");
-//         return;
-//       }
-
-//       // Select the first available camera
-//       const selectedDeviceId = videoDevices[0].deviceId;
-
-//       const stream = await navigator.mediaDevices.getUserMedia({
-//         video: { deviceId: selectedDeviceId },
-//       });
-
-//       if (videoRef.current) {
-//         videoRef.current.srcObject = stream;
-//         setIsCameraOn(true);
-//         console.log("📷 Camera started successfully!");
-//       }
-//       setIsProcessing(false);
-//     } catch (error) {
-//       console.error("❌ Camera Error:", error);
-//       alert("Camera access denied. Please allow camera permissions.");
-//     }
-//   };
-
-//   // Capture Image
-//   const captureImage = () => {
-//     const video = videoRef.current;
-//     const canvas = canvasRef.current;
-
-//     if (video && canvas) {
-//       // Set canvas size same as video
-//       canvas.width = video.videoWidth;
-//       canvas.height = video.videoHeight;
-
-//       const ctx = canvas.getContext("2d");
-//       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-//       // Convert canvas to image URL
-//       const imageUrl = canvas.toDataURL("image/png");
-//       setImage(imageUrl);
-//       processOCR(imageUrl); // Ensure OCR runs
-//     }
-//   };
-
-//   // Process OCR (Extract Text)
-//   const processOCR = async (image) => {
-//     const { data: { text } } = await Tesseract.recognize(image, "eng");
-//     setScannedText(text);
-//     console.log("Extracted Text:", text);
-//   };
-
-//     // Reset scanner
-//   const resetScanner = () => {
-//     stopCamera();
-//     setImage(null);
-//     setScannedText("");
-//   };
-
-//   // for searching ingredients
-//   const searchIngredients = async (ingredient) => {
-//     const response = await fetch(
-//       `https://world.openfoodfacts.org/api/v2/search?fields=product_name,ingredients_text,allergens,nutriscore_grade&json=1&search_terms=${encodeURIComponent(ingredient)}`
-//     );
-//     const data = await response.json();
-    
-//     // Process results
-//     return data.products.map(product => ({
-//       name: product.product_name,
-//       ingredients: product.ingredients_text,
-//       allergens: product.allergens,
-//       nutriscore: product.nutriscore_grade // A to E rating
-//     }));
-//   };
-
-  
-//   const handleSearch = async () => {
-//     setLoading(true);
-//     try {
-//       const data = await searchIngredients(query);
-//       setResults(data);
-//     } catch (error) {
-//       alert("Error fetching data");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 p-4 flex flex-col">
-//       <div className="max-w-md mx-auto w-full flex-1 flex flex-col">
-//         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Ingredient Scanner</h2>
- 
-//       {/* Camera Preview 
-//        <div className="relative bg-black rounded-xl overflow-hidden mb-4 flex-1 flex items-center justify-center">
-//         {!isCameraOn ? (
-//           <div className="text-center p-6 text-gray-400">
-//             <FiVideo className="mx-auto text-4xl mb-2" />
-//             <p>Camera is off</p>
-//           </div>
-//         ) : (
-//           <video 
-//             ref={videoRef} 
-//             autoPlay 
-//             playsInline 
-            
-//             className="w-full h-full object-contain"
-//           />
-//         )}
-//       </div> */}
-
-//       {/* Video Display */}
-//       <video ref={videoRef} autoPlay playsInline className="relative bg-black rounded-xl overflow-hidden mb-4 flex-1 flex items-center justify-center" />
-
-//       {/* Start Camera Button */}
-//       {/* {!isCameraOn && (
-//         <button onClick={startCamera} className="px-4 py-2 bg-blue-500 text-white rounded mt-2">
-//           Open Camera
-//         </button>
-//       )} */}
-
-//       {/* Capture Button */}
-//       {/* {isCameraOn && (
-//         <button onClick={captureImage} className="px-4 py-2 bg-green-500 text-white rounded mt-2">
-//           Capture Image
-//         </button>
-//       )} */}
-//               {/* Action Buttons */}
-//               <div className="flex justify-center space-x-4 mb-6">
-//           {!isCameraOn ? (
-//             <button
-//               onClick={startCamera}
-//               disabled={isProcessing}
-//               className={`flex items-center px-6 py-3 rounded-full shadow-md ${
-//                 isProcessing ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
-//               } text-white font-medium transition-colors`}
-//             >
-//               {isProcessing ? 'Loading...' : (
-//                 <>
-//                   <FiVideo className="mr-2" />
-//                   Open Camera
-//                 </>
-//               )}
-//             </button>
-//           ) : (
-//             <>
-//               <button
-//                 onClick={captureImage}
-//                 disabled={isProcessing}
-//                 className={`flex items-center px-6 py-3 rounded-full shadow-md ${
-//                   isProcessing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'
-//                 } text-white font-medium transition-colors`}
-//               >
-//                 <FiCamera className="mr-2" />
-//                 Capture
-//               </button>
-//               {/* <button
-//                 onClick={resetScanner}
-//                 className="flex items-center px-6 py-3 rounded-full shadow-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
-//               >
-//                 <FiX className="mr-2" />
-//                 Reset
-//               </button> */}
-//             </>
-//           )}
-//         </div>
-
-
-//       {/* Hidden Canvas for Image Processing */}
-//       <canvas ref={canvasRef} hidden />
-
-//       {/* Results Section */}
-//       {image && (
-//           <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
-//             <div className="p-4 border-b">
-//               <h3 className="font-semibold text-gray-800">Captured Image</h3>
-//             </div>
-//             <img 
-//               src={image} 
-//               alt="Captured" 
-//               className="w-full object-contain max-h-64"
-//             />
-//           </div>
-//         )}
-//       {/* Display Extracted Text */}
-//       {scannedText && (
-//           <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-4 flex-1">
-//             <div className="p-4 border-b">
-//               <h3 className="font-semibold text-gray-800">Extracted Ingredients</h3>
-//             </div>
-//             <div className="p-4">
-//               <div className="whitespace-pre-line text-gray-700">
-//                 {scannedText}
-//               </div>
-//               <button
-//                 // onChange={(e) => setQuery(e.target.value)}
-//                 onClick={( ) => {
-//                   // navigator.clipboard.writeText(scannedText);
-//                   setQuery("sugar");
-//                   // alert("Text copied to clipboard!");
-//                 }}
-//                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-//               >
-//                 Search
-//               </button>
-//             </div>
-//           </div>
-          
-//         )}
-//         {results.length > 0 && (
-//         <div className="space-y-4">
-//           {results.slice(0, 5).map((item, index) => (
-//             <div key={index} className="p-3 border rounded-lg bg-white shadow-sm">
-//               <h3 className="font-bold">{item.name || "Unnamed Product"}</h3>
-//               <div className="text-sm mt-1">
-//                 <p><span className="font-semibold">Ingredients:</span> {item.ingredients || "Not specified"}</p>
-//                 {item.allergens && (
-//                   <p className="text-red-600"><span className="font-semibold">Allergens:</span> {item.allergens}</p>
-//                 )}
-//                 {item.nutriscore && (
-//                   <p>Nutrition Score: <span className={`font-bold ${
-//                     item.nutriscore === 'a' ? 'text-green-600' : 
-//                     item.nutriscore === 'b' ? 'text-lime-600' :
-//                     item.nutriscore === 'c' ? 'text-yellow-600' :
-//                     item.nutriscore === 'd' ? 'text-orange-600' : 'text-red-600'
-//                   }`}>
-//                     {item.nutriscore.toUpperCase()}
-//                   </span></p>
-//                 )}
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//     </div>
-//   );
-// };
-
-// export default CameraCapture;
-
 import React, { useRef, useState } from "react";
-import Tesseract from "tesseract.js";
 import { FiCamera, FiVideo, FiX, FiSearch } from "react-icons/fi";
+import axios from "axios";
 
 const CameraCapture = () => {
   // Camera states
@@ -279,16 +13,22 @@ const CameraCapture = () => {
   const [stream, setStream] = useState(null);
 
   // Search states
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState(null);
+
+  // API base URL
+// At the top of your file
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// ... rest of your component code remains the same
 
   // Start Camera
   const startCamera = async () => {
     try {
       setIsProcessing(true);
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" } // Prefer rear camera
+        video: { facingMode: "environment" }
       });
       
       if (videoRef.current) {
@@ -329,7 +69,7 @@ const CameraCapture = () => {
 
         const imageUrl = canvas.toDataURL("image/jpeg", 0.8);
         setImage(imageUrl);
-        await processOCR(imageUrl);
+        await processWithBackend(imageUrl);
       } catch (error) {
         console.error("Capture Error:", error);
         alert("Failed to capture image. Please try again.");
@@ -339,69 +79,44 @@ const CameraCapture = () => {
     }
   };
 
-  // Process OCR
-  const processOCR = async (imageUrl) => {
+  // Process with Backend API
+  const processWithBackend = async (imageUrl) => {
     try {
       setIsProcessing(true);
-      const { data: { text } } = await Tesseract.recognize(
-        imageUrl,
-        "eng",
-        {
-          logger: m => console.log(m),
-          tessedit_char_whitelist: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ(),.- '
-        }
-      );
-      setScannedText(text);
+      setSearchError(null);
+      
+      const response = await axios.post(`${API_BASE_URL}/api/process-image`, {
+        imageData: imageUrl
+      });
+      
+      setScannedText(response.data.text);
     } catch (error) {
-      console.error("OCR Error:", error);
-      alert("Text recognition failed. Please try capturing again.");
+      console.error("API Error:", error);
+      setSearchError(error.response?.data?.error || "Failed to process image");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Search Ingredients
-  const searchIngredients = async (ingredient) => {
+  // Analyze ingredients with Backend
+  const analyzeIngredients = async (ingredientsText) => {
     try {
       setSearchLoading(true);
       setSearchError(null);
       
-      if (!ingredient.trim()) {
-        throw new Error("Please enter an ingredient to search");
-      }
-  
-      const response = await fetch(
-        `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=qvOYkoRjE8qGYXmm4nUuczB7KEwFfHiVR3hpJXDG&query=${encodeURIComponent(ingredient)}&pageSize=5`
-      );
-      
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
+      if (!ingredientsText.trim()) {
+        throw new Error("No ingredients to analyze");
       }
       
-      const data = await response.json();
+      const response = await axios.post(`${API_BASE_URL}/api/analyze-text`, {
+        text: ingredientsText
+      });
       
-      if (!data.foods || data.foods.length === 0) {
-        throw new Error("No nutritional data found for this ingredient");
-      }
-  
-      // Process USDA-specific response format
-      return data.foods.map(food => ({
-        name: food.description,
-        category: food.foodCategory,
-        nutrients: food.foodNutrients
-          .filter(n => n.value > 0)
-          .map(n => ({
-            name: n.nutrientName,
-            value: n.value,
-            unit: n.unitName
-          })),
-        servingSize: food.servingSize,
-        servingUnit: food.servingSizeUnit
-      }));
+      return response.data;
     } catch (error) {
-      console.error("Search Error:", error);
-      setSearchError(error.message);
-      return [];
+      console.error("Analysis Error:", error);
+      setSearchError(error.response?.data?.error || error.message);
+      return null;
     } finally {
       setSearchLoading(false);
     }
@@ -410,14 +125,12 @@ const CameraCapture = () => {
   // Handle Search
   const handleSearch = async () => {
     if (!scannedText.trim()) {
-      setSearchError("No extracted text to search. Please capture an image first.");
+      setSearchError("No extracted text to analyze. Please capture an image first.");
       return;
     }
     
-    // Use the first line of scanned text as the search query
-    const firstIngredient = scannedText.split('\n')[0].trim();
-    const data = await searchIngredients(firstIngredient);
-    setResults(data);
+    const analysis = await analyzeIngredients(scannedText);
+    setResults(analysis);
   };
 
   // Reset scanner
@@ -425,7 +138,7 @@ const CameraCapture = () => {
     stopCamera();
     setImage(null);
     setScannedText("");
-    setResults([]);
+    setResults(null);
     setSearchError(null);
   };
 
@@ -434,7 +147,21 @@ const CameraCapture = () => {
       <div className="max-w-md mx-auto w-full flex-1 flex flex-col">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Ingredient Scanner</h2>
 
-        <video ref={videoRef} autoPlay playsInline className="relative bg-black rounded-xl overflow-hidden mb-4 flex-1 flex items-center justify-center" />
+        <video 
+          ref={videoRef} 
+          autoPlay 
+          playsInline 
+          className={`relative bg-black rounded-xl overflow-hidden mb-4 flex-1 flex items-center justify-center ${
+            !isCameraOn ? 'hidden' : ''
+          }`}
+        />
+        
+        {!isCameraOn && (
+          <div className="bg-gray-200 rounded-xl mb-4 flex-1 flex items-center justify-center">
+            <p className="text-gray-500">Camera is off</p>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex justify-center space-x-4 mb-6">
           {!isCameraOn ? (
@@ -507,11 +234,11 @@ const CameraCapture = () => {
                 className="flex items-center justify-center w-full px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors disabled:bg-blue-400"
               >
                 {searchLoading ? (
-                  "Searching..."
+                  "Analyzing..."
                 ) : (
                   <>
                     <FiSearch className="mr-2" />
-                    Search for Ingredients
+                    Analyze Ingredients
                   </>
                 )}
               </button>
@@ -526,29 +253,49 @@ const CameraCapture = () => {
           </div>
         )}
 
-        {/* Search Results */}
-        {results.length > 0 && (
+        {/* Analysis Results */}
+        {results && (
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Search Results</h3>
-            {results.slice(0, 5).map((item, index) => (
-              <div key={index} className="p-3 border rounded-lg bg-white shadow-sm">
-                <h3 className="font-bold">{item.name || "Unnamed Product"}</h3>
-                <div className="text-sm mt-1">
-                  <p><span className="font-semibold">Ingredients:</span> {item.ingredients || "Not specified"}</p>
-                  {item.allergens && item.allergens !== "none" && (
-                    <p className="text-red-600"><span className="font-semibold">Allergens:</span> {item.allergens}</p>
-                  )}
-                  {item.nutriscore && (
-                    <p>Nutrition Score: <span className={`font-bold ${
-                      item.nutriscore === 'a' ? 'text-green-600' : 
-                      item.nutriscore === 'b' ? 'text-lime-600' :
-                      item.nutriscore === 'c' ? 'text-yellow-600' :
-                      item.nutriscore === 'd' ? 'text-orange-600' : 'text-red-600'
+            <h3 className="font-semibold text-lg">Ingredient Analysis</h3>
+            
+            {/* Overall Assessment */}
+            {results.overallAssessment && (
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-bold text-blue-800 mb-2">Overall Assessment</h4>
+                <p>{results.overallAssessment}</p>
+              </div>
+            )}
+            
+            {/* Individual Ingredients */}
+            {results.ingredients?.map((item, index) => (
+              <div key={index} className="p-4 border rounded-lg bg-white shadow-sm">
+                <h3 className="font-bold">{item.name}</h3>
+                <p className="text-sm mt-1">{item.description}</p>
+                
+                <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="font-semibold">Health Impact:</span> 
+                    <span className={`ml-1 ${
+                      item.healthImpact === 'high' ? 'text-red-600' :
+                      item.healthImpact === 'medium' ? 'text-yellow-600' : 'text-green-600'
                     }`}>
-                      {item.nutriscore.toUpperCase()}
-                    </span></p>
-                  )}
+                      {item.healthImpact}
+                    </span>
+                  </div>
+                  
+                  <div>
+                    <span className="font-semibold">Allergens:</span> 
+                    <span className={`ml-1 ${item.potentialAllergens ? 'text-red-600' : 'text-green-600'}`}>
+                      {item.potentialAllergens ? 'Potential' : 'None detected'}
+                    </span>
+                  </div>
                 </div>
+                
+                {item.commonUses && (
+                  <div className="mt-2 text-sm">
+                    <span className="font-semibold">Common Uses:</span> {item.commonUses}
+                  </div>
+                )}
               </div>
             ))}
           </div>
