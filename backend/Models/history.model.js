@@ -1,47 +1,56 @@
-import Mongoose, { SchemaType } from "mongoose";
+import mongoose from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
-const historySchema = new Schema({
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        unique: true // One preference document per user
-      },
-      ingredientsFound: [{
-        name: {
-          type: String,
-          required: true,
-          trim: true
-        },
-        // isAllergen: {
-        //   type: Boolean,
-        //   default: false
-        // },
-        // healthImpact: {
-        //   type: String,
-        //   enum: ['low', 'medium', 'high'],
-        //   default: 'medium'
-        // },
-        // description: String,
-        // recommendation: String
-      }],
-      summary: {
-        type : String,
-        required: true,
-      },
-      productName: String,
-  
-        // Analysis scores
-      healthScore: {
-        type: Number,
-        min: 0,
-        max: 100
-      },
-      warningFlags: [String]
-},
-{
-    timestampa : true,
-    toJSON: { virtuals: true }
+const historySchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    index: true
+  },
+  productName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  ingredientsFound: [{
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    }
+  }],
+  summary: {
+    type: String,
+    required: true
+  },
+  healthScore: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 50
+  },
+  warningFlags: [{
+    type: String,
+    trim: true
+  }],
+  scanDate: {
+    type: Date,
+    default: Date.now
+  },
+  analysisDetails: {
+    type: mongoose.Schema.Types.Mixed
+  }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: false },
+  toObject: { virtuals: false }
 });
 
-export const history = mongoose.model("History", historySchema);
+// Add pagination plugin
+historySchema.plugin(mongoosePaginate);
+
+// Index for user's history queries
+historySchema.index({ user: 1, scanDate: -1 });
+
+export const History = mongoose.model('History', historySchema);

@@ -37,7 +37,7 @@
 
 import React from "react";
 import { Link, useLocation } from 'react-router-dom';
-import logo from "./images/logo.jpg";
+import logo from "../assets/images/Logo.jpg"
 import Login from "./Login";
 import { useAuth0 } from "@auth0/auth0-react";
 import LogoutButton from "./Logout";

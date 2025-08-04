@@ -35,7 +35,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Header from "./Header";
-import scan from "./images/grommet-icons_qr.png";
+import scan from "../assets/images/icons.png";
 
 const Body = () => {
   return (

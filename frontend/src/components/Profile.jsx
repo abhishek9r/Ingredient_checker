@@ -1,104 +1,57 @@
-// import React from "react";
-// import Header from "./Header";
-// import { useAuth0 } from "@auth0/auth0-react";
-// import { useState } from "react";
-// import scan from "./images/grommet-icons_qr.png" ;
-
-
-// const Profile = () => {
-//     const { loginWithRedirect, user, isAuthenticated } = useAuth0();
-//     const [activeTab, setActiveTab] = useState('Personal');
-  
-//     console.log("current user", user);
-  
-//     return (
-//       <div>
-//         <Header />
-//         {/* Profile Picture */}
-//         <div className="bg-gray-500 text-center w-30 h-30 rounded-full my-4 mx-auto">
-//           <img
-//             className="w-30 h-30 rounded-full mx-auto my-4"
-//             src={user.picture}
-//             alt={user.given_name}
-//           />
-//         </div>
-  
-//         {/* Tabs */}
-//         <div className="bg-gray-500 w-110 h-95 rounded-2xl my-5 mx-auto p-4">
-//           {/* Tab Buttons */}
-//           <div className="flex justify-around mb-4">
-//             <button
-//               className={`px-4 py-2 rounded-lg ${
-//                 activeTab === 'Personal' ? 'bg-blue-600 text-white' : 'bg-gray-400 text-black'
-//               }`}
-//               onClick={() => setActiveTab('Personal')}
-//             >
-//               Personal
-//             </button>
-//             <button
-//               className={`px-4 py-2 rounded-lg ${
-//                 activeTab === 'Preference' ? 'bg-blue-600 text-white' : 'bg-gray-400 text-black'
-//               }`}
-//               onClick={() => setActiveTab('Preference')}
-//             >
-//               Preference
-//             </button>
-//             <button
-//               className={`px-4 py-2 rounded-lg ${
-//                 activeTab === 'History' ? 'bg-blue-600 text-white' : 'bg-gray-400 text-black'
-//               }`}
-//               onClick={() => setActiveTab('History')}
-//             >
-//               History
-//             </button>
-//           </div>
-  
-//           {/* Tab Content */}
-//           <div className="text-white">
-//             {activeTab === 'Personal' && (
-//               <>
-//                  {/* <p className="text-lg font-bold">Personal Details</p> */}
-//               <ul className="mt-4">
-//                 <li className="mb-2">
-//                   <span className="font-semibold">Name:</span> {user.name}
-//                 </li>
-//                 <li className="mb-2">
-//                   <span className="font-semibold">Email:</span> {user.email}
-//                 </li>
-//                 {/* Add more details if needed */}
-//               </ul>
-//               </>
-//             )}
-//             {activeTab === 'Preference' && (
-//               <p>Preference content goes here.</p>
-//             )}
-//             {activeTab === 'History' && (
-//               <p>History content goes here.</p>
-//             )}
-//           </div>
-//         </div>
-  
-//         {/* Scan Button */}
-//         <button className="bg-blue-600 w-30 font-bold rounded-xl h-15 mx-40 my-2">
-//           Scan
-//         </button>
-//       </div>
-//     );
-//   };
-  
-// export default Profile;
-
-
 import React from "react";
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import Header from "./Header";
-import scan from "./images/grommet-icons_qr.png";
+import scan from "../assets/images/icons.png";
 import { Link } from "react-router-dom";
 
 const Profile = () => {
   const { user, isAuthenticated } = useAuth0();
   const [activeTab, setActiveTab] = useState('Personal');
+  const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
+  const [preferences, setPreferences] = useState({
+    glutenFree: false,
+    peanutAllergy: false,
+    dairyFree: false,
+    shellfishAllergy: false,
+    soyAllergy: false,
+    eggAllergy: false,
+    treeNutAllergy: false,
+    fishAllergy: false,
+    halal: false,
+    kosher: false,
+    vegan: false,
+    vegetarian: false,
+    lactoseIntolerant: false
+  });
+
+  const handlePreferenceChange = (e) => {
+    const { name, checked } = e.target;
+    setPreferences(prev => ({
+      ...prev,
+      [name]: checked
+    }));
+  };
+
+  const savePreferences = async () => {
+    try {
+      // Here you would typically make an API call to save the preferences
+      // Example:
+      // const response = await fetch('/api/preferences', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ user: user.sub, restrictions: preferences })
+      // });
+      // const data = await response.json();
+      
+      setIsPreferenceModalOpen(false);
+      // Optionally show a success message
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -179,17 +132,40 @@ const Profile = () => {
         )}
 
         {activeTab === 'Preference' && (
-          <div className="text-center py-10">
-            <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-              </svg>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium text-gray-900">Dietary Restrictions</h3>
+              <button 
+                onClick={() => setIsPreferenceModalOpen(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                {Object.values(preferences).some(Boolean) ? 'Edit Preferences' : 'Set Preferences'}
+              </button>
             </div>
-            <h3 className="text-lg font-medium text-gray-900">Your Preferences</h3>
-            <p className="mt-2 text-gray-500">Set your dietary preferences and restrictions here</p>
-            <button className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
-              Edit Preferences
-            </button>
+            
+            {Object.values(preferences).some(Boolean) ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                {Object.entries(preferences)
+                  .filter(([_, value]) => value)
+                  .map(([key]) => (
+                    <div key={key} className="flex items-center bg-gray-50 p-3 rounded-lg">
+                      <span className="capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900">No Preferences Set</h3>
+                <p className="mt-2 text-gray-500">Set your dietary preferences and restrictions</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -205,6 +181,81 @@ const Profile = () => {
           </div>
         )}
       </div>
+
+      {/* Preference Modal */}
+      {isPreferenceModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Set Dietary Preferences</h3>
+                <button 
+                  onClick={() => setIsPreferenceModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Dietary Restrictions</h4>
+                  <div className="space-y-3">
+                    {[
+                      { id: 'glutenFree', label: 'Gluten Free' },
+                      { id: 'peanutAllergy', label: 'Peanut Allergy' },
+                      { id: 'dairyFree', label: 'Dairy Free' },
+                      { id: 'shellfishAllergy', label: 'Shellfish Allergy' },
+                      { id: 'soyAllergy', label: 'Soy Allergy' },
+                      { id: 'eggAllergy', label: 'Egg Allergy' },
+                      { id: 'treeNutAllergy', label: 'Tree Nut Allergy' },
+                      { id: 'fishAllergy', label: 'Fish Allergy' },
+                      { id: 'halal', label: 'Halal' },
+                      { id: 'kosher', label: 'Kosher' },
+                      { id: 'vegan', label: 'Vegan' },
+                      { id: 'vegetarian', label: 'Vegetarian' },
+                      { id: 'lactoseIntolerant', label: 'Lactose Intolerant' }
+                    ].map((item) => (
+                      <div key={item.id} className="flex items-center">
+                        <input
+                          id={item.id}
+                          name={item.id}
+                          type="checkbox"
+                          checked={preferences[item.id]}
+                          onChange={handlePreferenceChange}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor={item.id} className="ml-3 block text-sm text-gray-700">
+                          {item.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsPreferenceModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={savePreferences}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
+                >
+                  Save Preferences
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Scan Button */}
       <div className="fixed bottom-6 right-6">
